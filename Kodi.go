@@ -85,6 +85,13 @@ func (e Episode) deleteChildren() error {
 	return err
 }
 
+func (e Episode) print() {
+	fmt.Printf("Episode: %v\n", e)
+	fmt.Printf("Season: %v\n", e.Season)
+	fmt.Printf("File: %v\n", e.File)
+	fmt.Printf("Path: %v\n", e.File.Path)
+}
+
 var dbMySql *gorm.DB
 
 func main() {
@@ -105,7 +112,7 @@ func main() {
 	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ?", 51).First(&episode).Error; err != nil {
 		panic(err)
 	} else {
-		print(&episode)
+		episode.print()
 	}
 
 	/*
@@ -129,13 +136,6 @@ func main() {
 	//episode.findChildren()
 
 	/* delete(episode) */
-}
-
-func print(episode *Episode) {
-	fmt.Printf("Episode: %v\n", episode)
-	fmt.Printf("Season: %v\n", episode.Season)
-	fmt.Printf("File: %v\n", episode.File)
-	fmt.Printf("Path: %v\n", episode.File.Path)
 }
 
 func delete(episode *Episode) {
