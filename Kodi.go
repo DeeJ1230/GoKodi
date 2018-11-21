@@ -36,7 +36,7 @@ type Episode struct {
 	C21        string
 	C22        string
 	C23        string
-	Idshow     int `gorm:"column:idShow;foreignkey:idShow;association_foreignkey:idShow"`
+	Idshow     int `gorm:"column:idShow"`
 	Userrating int
 	Idseason   int     `gorm:"column:idSeason"`
 	Season     seasons `gorm:"foreignkey:idSeason;association_foreignkey:idSeason"`
@@ -76,22 +76,13 @@ type path struct {
 	Idparentpath   int    `gorm:"column:idParentPath"`
 }
 
-/*
-func (Tvshow) TableName() string {
-   return "tvshow"
-}
-*/
-
-func (e Episode) getFile() files {
-	return e.File
+func (Episode) TableName() string {
+	return "episode"
 }
 
-func (e Episode) findChildren() {
-	if err := dbMySql.Model(&e.File).Related(&e.File.Path, "Path").Error; err != nil {
-		panic(err)
-	} else {
-		fmt.Printf("Path: %s\n", e.File.Path)
-	}
+func (e Episode) deleteChildren() error {
+	var err error
+	return err
 }
 
 var dbMySql *gorm.DB
@@ -111,34 +102,43 @@ func main() {
 	dbMySql.LogMode(true)
 
 	var episode Episode
-	if err := dbMySql.Debug().Where("idShow = ?", 51).First(&episode).Error; err != nil {
+	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ?", 51).First(&episode).Error; err != nil {
 		panic(err)
 	} else {
-		fmt.Println(episode)
+		print(&episode)
 	}
 
-	if err = dbMySql.Model(&episode).Related(&episode.Season, "Season").Error; err != nil {
-		panic(err)
-	} else {
-		fmt.Printf("Season: %s\n", episode.Season)
-	}
-
-	if err = dbMySql.Model(&episode).Related(&episode.File, "File").Error; err != nil {
-		panic(err)
-	} else {
-		fmt.Printf("File: %s\n", episode.File)
-	}
-
+	/*
+		if err = dbMySql.Model(&episode).Related(&episode.Season, "Season").Error; err != nil {
+			panic(err)
+		} else {
+			fmt.Printf("Season: %s\n", episode.Season)
+		}
+	*/
+	/*
+		if err = dbMySql.Model(&episode).Related(&episode.File, "File").Error; err != nil {
+			panic(err)
+		} else {
+			fmt.Printf("File: %s\n", episode.File)
+		}
+	*/
 	//findChildren(episode)
 
-	fmt.Printf("%v\n", episode.getFile())
+	// fmt.Printf("%v\n", episode)
 
 	//episode.findChildren()
 
 	/* delete(episode) */
 }
 
-func delete(episode Episode) {
+func print(episode *Episode) {
+	fmt.Printf("Episode: %v\n", episode)
+	fmt.Printf("Season: %v\n", episode.Season)
+	fmt.Printf("File: %v\n", episode.File)
+	fmt.Printf("Path: %v\n", episode.File.Path)
+}
+
+func delete(episode *Episode) {
 	fmt.Println("deleting path")
 	if err := dbMySql.Debug().Delete(&episode.File.Path).Error; err != nil {
 		panic(err)
