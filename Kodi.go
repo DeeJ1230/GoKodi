@@ -115,6 +115,13 @@ func main() {
 		episode.print()
 	}
 
+	var episodes []Episode
+	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ?", 51).Find(&episodes).Error; err != nil {
+		panic(err)
+	} else {
+		episodes.print()
+	}
+
 	/*
 		if err = dbMySql.Model(&episode).Related(&episode.Season, "Season").Error; err != nil {
 			panic(err)
