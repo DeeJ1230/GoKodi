@@ -96,7 +96,7 @@ var dbMySql *gorm.DB
 
 func main() {
 
-	dbMySql, err := gorm.Open("mysql", "dan:gismo@tcp(localhost:3306)/MyVideos75?charset=utf8&parseTime=True")
+	dbMySql, err := gorm.Open("mysql", "dan:gismo@tcp(localhost:3306)/MyVideos107?charset=utf8&parseTime=True")
 	if err != nil {
 		fmt.Printf("failed to connect database on MySql %s", err)
 		panic("failed to connect database on MySql")
@@ -110,6 +110,7 @@ func main() {
 
 	var episodes []Episode
 	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ? And c18 like '%Better Call Saul%'", -1).Find(&episodes).Error; err != nil {
+		// if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ?", -1).Find(&episodes).Error; err != nil {
 		panic(err)
 	} else {
 		fmt.Printf("\v\n", episodes)
