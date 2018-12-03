@@ -108,61 +108,21 @@ func main() {
 	dbMySql.SingularTable(true)
 	dbMySql.LogMode(true)
 
-	var episode Episode
-	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ?", 51).First(&episode).Error; err != nil {
-		panic(err)
-	} else {
-		episode.print()
-	}
-
 	var episodes []Episode
-	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ?", 51).Find(&episodes).Error; err != nil {
+	if err := dbMySql.Debug().Set("gorm:auto_preload", true).Where("idShow = ? And c18 like '%Better Call Saul%'", -1).Find(&episodes).Error; err != nil {
 		panic(err)
 	} else {
-		episodes.print()
+		fmt.Printf("\v\n", episodes)
+		// episodes.print()
 	}
 
-	/*
-		if err = dbMySql.Model(&episode).Related(&episode.Season, "Season").Error; err != nil {
-			panic(err)
-		} else {
-			fmt.Printf("Season: %s\n", episode.Season)
-		}
-	*/
-	/*
-		if err = dbMySql.Model(&episode).Related(&episode.File, "File").Error; err != nil {
-			panic(err)
-		} else {
-			fmt.Printf("File: %s\n", episode.File)
-		}
-	*/
-	//findChildren(episode)
-
-	// fmt.Printf("%v\n", episode)
-
-	//episode.findChildren()
-
-	/* delete(episode) */
-}
-
-func delete(episode *Episode) {
-	fmt.Println("deleting path")
-	if err := dbMySql.Debug().Delete(&episode.File.Path).Error; err != nil {
-		panic(err)
+	for _, episode := range episodes {
+		// episode.print()
+		dbMySql.Debug().Delete(seasons{}, "idSeason = ?", &episode.Idseason)
+		dbMySql.Debug().Delete(path{}, "idPath = ?", &episode.File.Idpath)
+		dbMySql.Debug().Delete(files{}, "idFile = ?", &episode.File.Idfile)
+		dbMySql.Debug().Delete(Episode{}, "idEpisode = ?", &episode.Idepisode)
 	}
 
-	fmt.Println("deleting file")
-	if err := dbMySql.Debug().Delete(&episode.File).Error; err != nil {
-		panic(err)
-	}
-
-	fmt.Println("deleting season")
-	if err := dbMySql.Debug().Delete(&episode.Season).Error; err != nil {
-		panic(err)
-	}
-
-	fmt.Println("deleting episode")
-	if err := dbMySql.Debug().Delete(&episode).Error; err != nil {
-		panic(err)
-	}
+	fmt.Println("Done, thank you")
 }
